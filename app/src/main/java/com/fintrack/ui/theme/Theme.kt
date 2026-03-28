@@ -8,6 +8,9 @@ import androidx.compose.runtime.Composable
 private val LightColors = lightColorScheme()
 private val DarkColors = darkColorScheme()
 
+/**
+ * Applies the app Material3 color scheme and typography to child content.
+ */
 @Composable
 fun FinTrackTheme(
     darkTheme: Boolean = false,

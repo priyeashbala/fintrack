@@ -9,7 +9,14 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
+/**
+ * Broadcast receiver that handles incoming SMS and persists parsed transactions.
+ */
 class SmsReceiver : BroadcastReceiver() {
+    /**
+     * Processes SMS_RECEIVED broadcasts, merges multipart messages, parses them,
+     * and stores recognized transactions asynchronously.
+     */
     override fun onReceive(context: Context, intent: Intent?) {
         if (intent?.action != Telephony.Sms.Intents.SMS_RECEIVED_ACTION) {
             return

@@ -62,6 +62,9 @@ import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
 
+/**
+ * UI model used by Compose to render each transaction row.
+ */
 data class Transaction(
     val title: String,
     val category: String,
@@ -70,6 +73,9 @@ data class Transaction(
     val type: TransactionType
 )
 
+/**
+ * Transaction direction shown in the UI and used for amount coloring.
+ */
 enum class TransactionType { INCOME, EXPENSE }
 
 private val sampleTransactions = listOf(
@@ -82,6 +88,11 @@ private val sampleTransactions = listOf(
     Transaction("Dining Out", "Food", "Mar 14, 2026", 1100.00, TransactionType.EXPENSE)
 )
 
+/**
+ * Owns transaction loading logic:
+ * - Falls back to sample data when DB is empty.
+ * - Imports historical inbox SMS once after permission is granted.
+ */
 class TransactionsViewModel(application: Application) : AndroidViewModel(application) {
     private val dao = AppDatabase.getInstance(application).transactionDao()
     private var inboxImported = false
@@ -100,6 +111,9 @@ class TransactionsViewModel(application: Application) : AndroidViewModel(applica
             initialValue = sampleTransactions
         )
 
+    /**
+     * Imports existing inbox SMS exactly once per process lifetime.
+     */
     fun importInboxIfNeeded() {
         if (inboxImported) return
         inboxImported = true
@@ -112,6 +126,9 @@ class TransactionsViewModel(application: Application) : AndroidViewModel(applica
         }
     }
 
+    /**
+     * Reads inbox SMS and converts parsable bank/payment messages into DB entities.
+     */
     @RequiresPermission(Manifest.permission.READ_SMS)
     private fun readAndParseInboxSms(): List<SmsTransactionEntity> {
         val resolver = getApplication<Application>().contentResolver
@@ -144,6 +161,9 @@ class TransactionsViewModel(application: Application) : AndroidViewModel(applica
     }
 }
 
+/**
+ * Converts DB entity values into UI-friendly text values.
+ */
 private fun SmsTransactionEntity.toUiModel(): Transaction {
     val formatter = SimpleDateFormat("dd MMM yyyy, hh:mm a", Locale.ENGLISH)
     val dateText = formatter.format(Date(occurredAt))
@@ -158,9 +178,15 @@ private fun SmsTransactionEntity.toUiModel(): Transaction {
     )
 }
 
+/**
+ * Single-activity host that bootstraps the Compose app and ViewModel.
+ */
 class MainActivity : ComponentActivity() {
     private val viewModel: TransactionsViewModel by viewModels()
 
+    /**
+     * Creates the Compose tree and wires the root screen to [TransactionsViewModel].
+     */
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
@@ -171,6 +197,9 @@ class MainActivity : ComponentActivity() {
     }
 }
 
+/**
+ * Root Compose coordinator for SMS permission flow and transaction state collection.
+ */
 @Composable
 private fun FinTrackRoot(viewModel: TransactionsViewModel = viewModel()) {
     val context = LocalContext.current
@@ -222,6 +251,9 @@ private fun FinTrackRoot(viewModel: TransactionsViewModel = viewModel()) {
     )
 }
 
+/**
+ * Renders the transactions page with permission prompt and list content.
+ */
 @Composable
 @OptIn(ExperimentalMaterial3Api::class)
 fun TransactionsScreen(
@@ -292,6 +324,9 @@ fun TransactionsScreen(
     }
 }
 
+/**
+ * Renders one transaction card with title, metadata, and signed amount.
+ */
 @Composable
 fun TransactionCard(transaction: Transaction) {
     val formattedAmount = NumberFormat.getCurrencyInstance(Locale("en", "IN"))
@@ -334,6 +369,9 @@ fun TransactionCard(transaction: Transaction) {
     }
 }
 
+/**
+ * Design-time preview for the transactions page using sample data.
+ */
 @Preview(showBackground = true)
 @Composable
 fun TransactionsScreenPreview() {

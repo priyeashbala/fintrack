@@ -4,6 +4,9 @@ import androidx.room.Entity
 import androidx.room.Index
 import androidx.room.PrimaryKey
 
+/**
+ * Persistent representation of one parsed SMS transaction.
+ */
 @Entity(
     tableName = "sms_transactions",
     indices = [Index(value = ["sender", "body", "occurredAt"], unique = true)]
