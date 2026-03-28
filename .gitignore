@@ -1,0 +1,14 @@
+# Android/Gradle
+.gradle/
+build/
+**/build/
+
+# Local SDK path
+local.properties
+
+# IDE and local tool state
+.idea/
+.oca/
+
+# Java toolchain hint (local)
+.java-version
